@@ -21,9 +21,6 @@ type SearchState = {
 };
 
 const AutoComplete: FC<AutoCompleteProps> = ({ data, isLoading, error }) => {
-  useEffect(() => {
-    setSearch({ ...search, suggestions: data });
-  }, [data]);
   const inputRef = useRef<HTMLInputElement>(null);
   useLayoutEffect(() => {
     (inputRef.current as HTMLInputElement).focus();
@@ -33,7 +30,9 @@ const AutoComplete: FC<AutoCompleteProps> = ({ data, isLoading, error }) => {
     suggestions: data ?? [],
   });
   const [isComponentVisible, setIsComponentVisible] = useState(false);
-
+  useEffect(() => {
+    setSearch((prevSearch) => ({ ...prevSearch, suggestions: data }));
+  }, [data]);
   // Filter data based on input value {value: string} @returns Promise<string[]>
   const filterData = async (value: string) => {
     const regex = new RegExp(`^${value}`, "i");
