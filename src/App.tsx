@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import "./App.css";
-import AutoComplete from "@components/AutoComplete";
+import AutoComplete from "@/components/Autocomplete/AutoComplete";
 import FetchData from "@utils/FetchData";
 function App() {
   const apiUrl = "https://restcountries.com/v3.1/all";

@@ -10,6 +10,8 @@
     border-radius: 5px
     margin-bottom: 10px
     padding: 10px
+    &:focus,:focus-visible
+      outline: 1px auto #35aca2
   &__btn
     width: 45px
     height: 40px
@@ -17,6 +19,13 @@
     border: 1px solid #333
     border-radius: 5px
     padding: 10px
+    background-color: #1a1a1a
+    cursor: pointer
+    transition: border-color 0.25s
+    &:hover
+      border-color: #35aca2
+    &:focus,:focus-visible
+      outline: 4px auto #35aca2
   &__list 
     width: 100%
     position: absolute

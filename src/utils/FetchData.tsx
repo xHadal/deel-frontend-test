@@ -1,5 +1,4 @@
 import { FC, useEffect, useState } from "react";
-import { Country } from "@utils/types";
 
 interface FetchDataProps {
   apiUrl: string;
@@ -35,7 +34,7 @@ const FetchData: FC<FetchDataProps> = ({
         if (responseJSON) {
           // Map response data to an array of country names
           const filteredData = responseJSON
-            .map((item: Country) => item.name.official)
+            .map((item: any) => item.name.official)
             .sort();
           setFetchedData({
             data: filteredData,

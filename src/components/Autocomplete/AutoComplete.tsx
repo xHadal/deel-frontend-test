@@ -8,7 +8,9 @@ import {
   useEffect,
 } from "react";
 import { HighlightText } from "@utils/HighlightText";
+import { useDebounce } from "@utils/Debounce";
 import "./AutoComplete.sass";
+
 interface AutoCompleteProps {
   data: string[] | undefined;
   isLoading: boolean;
@@ -25,14 +27,18 @@ const AutoComplete: FC<AutoCompleteProps> = ({ data, isLoading, error }) => {
   useLayoutEffect(() => {
     (inputRef.current as HTMLInputElement).focus();
   }, []);
+
   const [search, setSearch] = useState<SearchState>({
     text: "",
     suggestions: data ?? [],
   });
   const [isComponentVisible, setIsComponentVisible] = useState(false);
+  const debouncedInputValueHook = useDebounce(search.text, 300);
+
   useEffect(() => {
     setSearch((prevSearch) => ({ ...prevSearch, suggestions: data }));
   }, [data]);
+
   // Filter data based on input value {value: string} @returns Promise<string[]>
   const filterData = async (value: string) => {
     const regex = new RegExp(`^${value}`, "i");
@@ -40,24 +46,23 @@ const AutoComplete: FC<AutoCompleteProps> = ({ data, isLoading, error }) => {
   };
 
   // Handle input change {e: React.ChangeEvent<HTMLInputElement>} @returns void
-  const onTextChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    let suggestions: string[] = [];
-    // if there is a value, filter our data, otherwise return all
-    if (value.length > 0) {
-      suggestions = await filterData(value);
-    } else {
-      suggestions = data?.sort() ?? [];
-    }
-    setIsComponentVisible(value.length > 0);
-    setSearch({ suggestions, text: value });
+  const onTextChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setIsComponentVisible(text.length > 0);
+    setSearch((prevState) => ({ ...prevState, text }));
   };
 
+  // Filter data on input change
+  useEffect(() => {
+    (async () => {
+      const suggestions = await filterData(debouncedInputValueHook);
+      setSearch((prevSearch) => ({ ...prevSearch, suggestions }));
+    })();
+  }, [debouncedInputValueHook]);
+
   // Handle selection change {e: string} @returns void
-  const onSelectionClick = (e: string): void => {
-    const value = e;
-    const suggestions: string[] = [value];
-    setSearch({ suggestions, text: value });
+  const onSelection = (e: string): void => {
+    setSearch({ suggestions: [e], text: e });
   };
 
   return (
@@ -98,7 +103,7 @@ const AutoComplete: FC<AutoCompleteProps> = ({ data, isLoading, error }) => {
               return (
                 <li
                   className="auto-complete__list__item"
-                  onClick={() => onSelectionClick(suggestion)}
+                  onClick={() => onSelection(suggestion)}
                   key={i}
                 >
                   {HighlightText({
